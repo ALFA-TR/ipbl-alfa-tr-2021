@@ -1,3 +1,2 @@
 1° Commit
-conflito master
-
+conflito 2
