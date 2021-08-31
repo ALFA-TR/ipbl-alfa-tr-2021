@@ -1,4 +1,0 @@
-Teste Primeiro Commit
-Teste de merge
-Criando um conflito
-
