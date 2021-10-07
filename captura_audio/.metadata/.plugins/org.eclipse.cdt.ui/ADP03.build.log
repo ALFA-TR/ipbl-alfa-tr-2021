@@ -1,0 +1,10 @@
+16:07:59 **** Incremental Build of configuration Debug for project ADP03 ****
+make -j4 all 
+arm-none-eabi-size   ADP03.elf 
+   text	   data	    bss	    dec	    hex	filename
+  18620	     20	   1820	  20460	   4fec	ADP03.elf
+Finished building: default.size.stdout
+ 
+
+16:07:59 Build Finished. 0 errors, 0 warnings. (took 420ms)
+
