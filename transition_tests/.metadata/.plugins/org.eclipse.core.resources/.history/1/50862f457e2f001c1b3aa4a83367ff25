@@ -1,0 +1,35 @@
+/**
+  ******************************************************************************
+  * @file           : sm_adp-flual.c
+  * @brief          : ADP-FLUAL State Machine
+  ******************************************************************************
+  * @attention
+  *
+  *State Machine
+  *
+  ******************************************************************************
+  */
+
+#include "main.h"
+#include "sm_adp-flual.h"
+
+adpflual_State_t adpflual_State = SHUTDOWN;
+
+#ifdef DEBUG
+void adpflual_setState (adpflual_State_t value){
+	adpflual_State = value;
+};
+
+adpflual_State_t adpflual_getState (void){
+	return adpflual_State;
+};
+
+void adpflual_setEvent (void){
+
+};
+
+void adpflual_setTrigger (void){
+
+};
+
+#endif
