@@ -179,10 +179,12 @@ int main(void)
 	MX_GPIO_Init();
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
-	/*
-	 * Clear terminal prompt.
+	//send_Serial((const uint8_t *)"\033[3J");
+
+	/****
+	 * Ideia do vetor com estrutura
+	 *
 	 */
-	send_Serial((const uint8_t *)"\033c");
 
 	/*
 	 * 1o teste de transição quando sai do Shutdown e configura o ambiente para READY.
@@ -313,7 +315,7 @@ int main(void)
 	generateVoiceCommandEvent(VC_STOP_RECORD);
 	adpflual_State_Machine();
 
-	if(adpflual_getState()== SM_READY && executed_routines == (CLOSE_FILE_RECORDED)){
+	if(adpflual_getState()== SM_READY && executed_routines == (PLAY_LAST_SOUND)){
 		//Sucesso no teste.
 		send_Serial(SUCCESS_TEXT);
 	}

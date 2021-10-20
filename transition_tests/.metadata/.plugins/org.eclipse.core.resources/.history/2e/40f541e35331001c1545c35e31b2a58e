@@ -53,7 +53,7 @@ void adpflual_State_Machine(void) {
 				ADPFLUAL_SEEK_WIFI_NETWORK();
 				adpflual_State = SM_CONNECT;
 			}else if(temp == VC_PLAY_RECORDED){
-				ADPFLUAL_PLAY_LAST_SOUND();
+				();
 				adpflual_State = SM_PLAY;
 			}
 		} else if(ADPFLUAL_TIMEROUT()){

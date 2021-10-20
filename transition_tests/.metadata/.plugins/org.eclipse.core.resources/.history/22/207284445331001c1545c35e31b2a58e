@@ -52,10 +52,9 @@ void adpflual_State_Machine(void) {
 			}else if(temp == VC_SEND){
 				ADPFLUAL_SEEK_WIFI_NETWORK();
 				adpflual_State = SM_CONNECT;
-			}else if(temp == VC_PLAY_RECORDED){
-				ADPFLUAL_PLAY_LAST_SOUND();
-				adpflual_State = SM_PLAY;
-			}
+			}else if(temp == VC_SEND){
+				ADPFLUAL_SEEK_WIFI_NETWORK();
+				adpflual_State = SM_CONNECT;
 		} else if(ADPFLUAL_TIMEROUT()){
 			ADPFLUAL_BLINK_RED_LED();
 			adpflual_State = SM_HARD_FAULT;

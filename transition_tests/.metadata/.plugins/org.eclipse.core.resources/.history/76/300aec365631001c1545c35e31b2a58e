@@ -184,6 +184,11 @@ int main(void)
 	 */
 	send_Serial((const uint8_t *)"\033c");
 
+	/****
+	 * Ideia do vetor com estrutura
+	 *
+	 */
+
 	/*
 	 * 1o teste de transição quando sai do Shutdown e configura o ambiente para READY.
 	 *
@@ -322,6 +327,7 @@ int main(void)
 		send_Serial(FAIL_TEXT);
 	}
 
+	send_Serial((const uint8_t *)"\033c");
 	/* USER CODE END 2 */
 
 	/* Infinite loop */

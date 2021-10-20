@@ -35,8 +35,18 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SUCCESS_TEXT	(const uint8_t*)"Test Success\n\r"
-#define FAIL_TEXT	(const uint8_t*)"Test Fail\n\r"
+#define SUCCESS_TEXT (const uint8_t*) "\033[0;30;42mTest Success!\033[0;39;49m\n\r"
+#define FAIL_TEXT	 (const uint8_t*) "\033[0;37;41mTest Fail!\033[0;39;49m\n\r"
+
+
+#define SETUP_EXECUTED		0x00000001
+#define NEW_FILE_EXECUTED 	0x00000002
+#define BLINK_RED_LED		0x00000004
+#define SEEK_WIFI_NETWORK	0x00000008
+#define PLAY_LAST_SOUND		0x00000010
+#define CLOSE_FILE_RECORDED	0x00000020
+#define START_SEND			0x00000040
+#define FINISH_SEND			0x00000080
 
 /* USER CODE END PD */
 
@@ -50,6 +60,10 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 bool TurnOnEvent = false;
+bool VoiceCommandEvent = false;
+bool TimerOutEvent = false;
+voiceCommandEnum_t voiceCommand = VC_INVALID;
+uint32_t executed_routines = 0;
 
 /* USER CODE END PV */
 
@@ -63,11 +77,37 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void send_Serial(const uint8_t* text){
-	HAL_UART_Transmit(&huart2, text, strlen(text), 1000);
-
+void send_Serial(const uint8_t * text){
+	HAL_UART_Transmit(&huart2, (uint8_t *)text, strlen((const char *)text), 1000);
 }
 
+/*****************************************************************************
+ * Actions application
+ *
+ */
+void setup(void){
+	//MOC DO SETUP.
+	executed_routines |= SETUP_EXECUTED;
+}
+void newFileExecuted(void){
+	//MOC para gerar um novo arquivo.
+	executed_routines |= NEW_FILE_EXECUTED;
+}
+
+void blinkRedLed(void){
+	//MOC para simular o Hard_Fault.
+	executed_routines |= BLINK_RED_LED;
+}
+
+void seekWifiNetwork(void){
+	//MOC para simular a procura de rede wi-fi.
+	executed_routines |= SEEK_WIFI_NETWORK;
+}
+
+/*****************************************************************************
+ * Events application
+ *
+ */
 void generateTurnOnEvent(void){
 	TurnOnEvent = true;
 }
@@ -76,6 +116,30 @@ bool getTurnOnEvent(void){
 	bool retVal = TurnOnEvent;
 
 	TurnOnEvent = false;
+	return retVal;
+}
+
+void generateVoiceCommandEvent(voiceCommandEnum_t value){
+	voiceCommand = value;
+	VoiceCommandEvent = true;
+}
+
+bool getVoiceCommandEvent(voiceCommandEnum_t *trigger){
+	bool retVal = VoiceCommandEvent;
+	*trigger = voiceCommand;
+	VoiceCommandEvent = false;
+	voiceCommand = VC_INVALID;
+	return retVal;
+}
+
+void generateTimerOutEvent(void){
+	TimerOutEvent = true;
+}
+
+bool getTimerOutEvent(void){
+	bool retVal = TimerOutEvent;
+
+	TimerOutEvent = false;
 	return retVal;
 }
 /* USER CODE END 0 */
@@ -110,11 +174,24 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  //send_Serial((const uint8_t *)"\033[3J");
+
+  /****
+   * Ideia do vetor com estrutura
+   *
+   */
+
+  /*
+   * 1o teste de transição quando sai do Shutdown e configura o ambiente para READY.
+   *
+   * */
+  send_Serial((const uint8_t *)"Transition Test1: ");
+  executed_routines = 0;
   adpflual_setState(SHUTDOWN);
   generateTurnOnEvent();
   adpflual_State_Machine();
 
-  if(adpflual_getState()== READY){
+  if(adpflual_getState()== SM_READY && executed_routines == (SETUP_EXECUTED)){
 	  //Sucesso no teste.
 	  send_Serial(SUCCESS_TEXT);
   }
@@ -123,7 +200,105 @@ int main(void)
 	  send_Serial(FAIL_TEXT);
   }
 
+  /*
+   * 2o teste de transição quando sai do Ready e entra em Record_id para começar
+   * uma gravação de arquivo no cartão SD.
+   *
+   * */
+  send_Serial((const uint8_t *)"Transition Test2: ");
+  executed_routines = 0;
+  adpflual_setState(SM_READY);
+  generateVoiceCommandEvent(VC_RECORD_ID);
+  adpflual_State_Machine();
 
+  if(adpflual_getState()== SM_RECORD_ID && executed_routines == (NEW_FILE_EXECUTED)){
+ 	  //Sucesso no teste.
+ 	  send_Serial(SUCCESS_TEXT);
+   }
+   else {
+ 	  //Falha no teste.
+ 	  send_Serial(FAIL_TEXT);
+   }
+
+  /*
+  * 3o teste de transição quando sai do Ready e entra em Record_Fluency para começar
+  * uma gravação de arquivo no cartão SD.
+  *
+  * */
+  send_Serial((const uint8_t *)"Transition Test3: ");
+  executed_routines = 0;
+  adpflual_setState(SM_READY);
+  generateVoiceCommandEvent(VC_RECORD_FLUENCY);
+  adpflual_State_Machine();
+
+  if(adpflual_getState()== SM_RECORD_FLUENCY && executed_routines == (NEW_FILE_EXECUTED)){
+	//Sucesso no teste.
+	send_Serial(SUCCESS_TEXT);
+  }
+  else {
+	//Falha no teste.
+	send_Serial(FAIL_TEXT);
+  }
+
+	/*
+	* 4o teste de transição quando sai do Ready e entra em Hard_fault para começar
+	* uma gravação de arquivo no cartão SD.
+	*
+	* */
+	send_Serial((const uint8_t *)"Transition Test4: ");
+	executed_routines = 0;
+	adpflual_setState(SM_READY);
+	generateTimerOutEvent();
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_HARD_FAULT && executed_routines == (BLINK_RED_LED)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+
+	/*
+	* 5o teste de transição quando sai do Ready e entra em Connect para começar uma gravação
+	* do arquivo no cartão SD.
+	*
+	* */
+	send_Serial((const uint8_t *)"Transition Test5: ");
+	executed_routines = 0;
+	adpflual_setState(SM_READY);
+	generateVoiceCommandEvent(VC_SEND);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_CONNECT && executed_routines == (SEEK_WIFI_NETWORK)){
+	  //Sucesso no teste.
+	  send_Serial(SUCCESS_TEXT);
+	 }
+	 else {
+	  //Falha no teste.
+	  send_Serial(FAIL_TEXT);
+	 }
+
+	/*
+	* 6o teste de transição quando sai do Ready e entra em PLay para começar uma reprodução
+	* do arquivo no cartão SD.
+	*
+	* */
+	send_Serial((const uint8_t *)"Transition Test6: ");
+	executed_routines = 0;
+	adpflual_setState(SM_READY);
+	generateVoiceCommandEvent(VC_PLAY_RECORDED);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_PLAY && executed_routines == (PLAY_LAST_SOUND)){
+	  //Sucesso no teste.
+	  send_Serial(SUCCESS_TEXT);
+	 }
+	 else {
+	  //Falha no teste.
+	  send_Serial(FAIL_TEXT);
+	 }
   /* USER CODE END 2 */
 
   /* Infinite loop */

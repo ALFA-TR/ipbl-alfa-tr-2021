@@ -183,6 +183,13 @@ int main(void)
 	 * Clear terminal prompt.
 	 */
 	send_Serial((const uint8_t *)"\033c");
+	send_Serial((const uint8_t *)"\033c");
+
+
+	/****
+	 * Ideia do vetor com estrutura
+	 *
+	 */
 
 	/*
 	 * 1o teste de transição quando sai do Shutdown e configura o ambiente para READY.

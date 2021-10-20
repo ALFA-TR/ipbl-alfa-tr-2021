@@ -28,9 +28,6 @@ void blinkRedLed(void);
 #define ADPFLUAL_SEEK_WIFI_NETWORK()	seekWifiNetwork()
 void seekWifiNetwork(void);
 
-#define ADPFLUAL_PLAY_LAST_SOUND() 		playLastSound()
-void playLastSound(void);
-
 /*******************************************************************************
  * Events
  *
