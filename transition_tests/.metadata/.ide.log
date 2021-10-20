@@ -844,3 +844,58 @@
 2021-10-20 00:07:40,419 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] INFORMA??ES: [HttpServer] Started.
 2021-10-20 00:07:40,419 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
 2021-10-20 00:34:56,534 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 11:06:30,044 [INFO] Activator:177 - 
+
+
+2021-10-20 11:06:30,044 [INFO] Activator:178 - !SESSION log4j initialized
+2021-10-20 11:06:35,484 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+2021-10-20 11:06:35,494 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Defaulting to no-operation (NOP) logger implementation
+2021-10-20 11:06:35,499 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+2021-10-20 11:06:40,752 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] out 20, 2021 11:06:40 AM org.glassfish.grizzly.http.server.NetworkListener start
+2021-10-20 11:06:40,752 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] INFORMA??ES: Started listener bound to [localhost:1597]
+2021-10-20 11:06:40,752 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 11:06:40,752 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] out 20, 2021 11:06:40 AM org.glassfish.grizzly.http.server.HttpServer start
+2021-10-20 11:06:40,752 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] INFORMA??ES: [HttpServer] Started.
+2021-10-20 11:06:40,752 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 12:04:50,059 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 12:54:16,872 [INFO] Activator:177 - 
+
+
+2021-10-20 12:54:16,872 [INFO] Activator:178 - !SESSION log4j initialized
+2021-10-20 12:54:22,790 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+2021-10-20 12:54:22,790 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Defaulting to no-operation (NOP) logger implementation
+2021-10-20 12:54:22,806 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+2021-10-20 12:54:27,396 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] out 20, 2021 12:54:27 PM org.glassfish.grizzly.http.server.NetworkListener start
+2021-10-20 12:54:27,396 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] INFORMA??ES: Started listener bound to [localhost:1597]
+2021-10-20 12:54:27,396 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 12:54:27,396 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] out 20, 2021 12:54:27 PM org.glassfish.grizzly.http.server.HttpServer start
+2021-10-20 12:54:27,396 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] INFORMA??ES: [HttpServer] Started.
+2021-10-20 12:54:27,396 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 12:58:12,804 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 12:58:20,989 [INFO] Activator:177 - 
+
+
+2021-10-20 12:58:20,989 [INFO] Activator:178 - !SESSION log4j initialized
+2021-10-20 12:58:29,012 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+2021-10-20 12:58:29,028 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Defaulting to no-operation (NOP) logger implementation
+2021-10-20 12:58:29,043 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+2021-10-20 12:58:34,056 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] out 20, 2021 12:58:34 PM org.glassfish.grizzly.http.server.NetworkListener start
+2021-10-20 12:58:34,056 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] INFORMA??ES: Started listener bound to [localhost:1596]
+2021-10-20 12:58:34,056 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 12:58:34,056 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] out 20, 2021 12:58:34 PM org.glassfish.grizzly.http.server.HttpServer start
+2021-10-20 12:58:34,056 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] INFORMA??ES: [HttpServer] Started.
+2021-10-20 12:58:34,072 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 12:59:50,312 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 14:13:15,436 [INFO] Activator:177 - 
+
+
+2021-10-20 14:13:15,438 [INFO] Activator:178 - !SESSION log4j initialized
+2021-10-20 14:13:21,670 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+2021-10-20 14:13:21,679 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: Defaulting to no-operation (NOP) logger implementation
+2021-10-20 14:13:21,681 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+2021-10-20 14:13:27,414 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] out 20, 2021 2:13:27 PM org.glassfish.grizzly.http.server.NetworkListener start
+2021-10-20 14:13:27,418 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] INFORMA??ES: Started listener bound to [localhost:1598]
+2021-10-20 14:13:27,418 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 
+2021-10-20 14:13:27,420 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] out 20, 2021 2:13:27 PM org.glassfish.grizzly.http.server.HttpServer start
+2021-10-20 14:13:27,420 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] INFORMA??ES: [HttpServer] Started.
+2021-10-20 14:13:27,421 [ERROR] LogOutputStream:74 - [STDERR_REDIRECT] 

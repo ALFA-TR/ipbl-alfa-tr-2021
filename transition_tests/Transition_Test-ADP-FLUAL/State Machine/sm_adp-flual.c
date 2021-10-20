@@ -1,14 +1,14 @@
 /**
-  ******************************************************************************
-  * @file           : sm_adp-flual.c
-  * @brief          : ADP-FLUAL State Machine
-  ******************************************************************************
-  * @attention
-  *
-  *State Machine
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : sm_adp-flual.c
+ * @brief          : ADP-FLUAL State Machine
+ ******************************************************************************
+ * @attention
+ *
+ *State Machine
+ *
+ ******************************************************************************
+ */
 #include "sm_adp-flual_user.h"
 #include "sm_adp-flual.h"
 
@@ -61,18 +61,36 @@ void adpflual_State_Machine(void) {
 			adpflual_State = SM_HARD_FAULT;
 		}
 	}
-		break;
-	case SM_RECORD_ID:
-		break;
-	case SM_RECORD_FLUENCY:
-		break;
-	case SM_HARD_FAULT:
-		break;
-	case SM_CONNECT:
-		break;
-	case SM_SEND:
-		break;
-	case SM_PLAY:
-		break;
+	break;
+	case SM_RECORD_ID:{
+		ADPFLUAL_VC_LIST_TYPEDEF temp;
+		if(ADPFLUIAL_GETVOICECOMMAND(&temp)){
+			if(temp == VC_STOP_RECORD){
+				ADPFLUAL_STOP_RECORD();
+				adpflual_State = SM_READY;
+			}
+		}
+	}
+	break;
+	case SM_RECORD_FLUENCY:{
+
+	}
+	break;
+	case SM_HARD_FAULT:{
+
+	}
+	break;
+	case SM_CONNECT:{
+
+	}
+	break;
+	case SM_SEND:{
+
+	}
+	break;
+	case SM_PLAY:{
+
+	}
+	break;
 	}
 }

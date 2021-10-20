@@ -1,10 +1,10 @@
-00:34:00 **** Incremental Build of configuration Debug for project Transition_Test-ADP-FLUAL ****
+16:54:35 **** Incremental Build of configuration Debug for project Transition_Test-ADP-FLUAL ****
 make -j4 all 
 arm-none-eabi-size   Transition_Test-ADP-FLUAL.elf 
    text	   data	    bss	    dec	    hex	filename
-  13912	     24	   1712	  15648	   3d20	Transition_Test-ADP-FLUAL.elf
+  13972	     24	   1712	  15708	   3d5c	Transition_Test-ADP-FLUAL.elf
 Finished building: default.size.stdout
  
 
-00:34:00 Build Finished. 0 errors, 0 warnings. (took 440ms)
+16:54:35 Build Finished. 0 errors, 0 warnings. (took 522ms)
 

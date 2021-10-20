@@ -109,6 +109,11 @@ void playLastSound(void){
 	executed_routines |= PLAY_LAST_SOUND;
 }
 
+void stopRecord(void){
+	//Moc do comando que para a gravação.
+	executed_routines |= CLOSE_FILE_RECORDED;
+}
+
 /*****************************************************************************
  * Events application
  *
@@ -303,7 +308,7 @@ int main(void)
 		send_Serial(FAIL_TEXT);
 	}
 	/*
-	 * 7o teste de transição quando sai do Ready e entra em PLay para começar uma reprodução
+	 * 7o teste de transição quando sai do Record_ID e entra em Ready para finalizar a gravação
 	 * do arquivo no cartão SD.
 	 *
 	 * */
