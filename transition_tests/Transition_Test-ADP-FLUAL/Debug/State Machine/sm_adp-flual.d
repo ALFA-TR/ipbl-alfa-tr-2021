@@ -1,5 +1,6 @@
 State Machine/sm_adp-flual.o: ../State\ Machine/sm_adp-flual.c \
- ../Core/Inc/main.h ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h \
+ ../State\ Machine/sm_adp-flual_user.h ../Core/Inc/main.h \
+ ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h \
  ../Core/Inc/stm32l4xx_hal_conf.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_rcc.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_def.h \
@@ -27,7 +28,9 @@ State Machine/sm_adp-flual.o: ../State\ Machine/sm_adp-flual.c \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
- ../State\ Machine/sm_adp-flual.h ../State\ Machine/sm_adp-flual_user.h
+ ../State\ Machine/sm_adp-flual.h
+
+../State\ Machine/sm_adp-flual_user.h:
 
 ../Core/Inc/main.h:
 
@@ -88,5 +91,3 @@ State Machine/sm_adp-flual.o: ../State\ Machine/sm_adp-flual.c \
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h:
 
 ../State\ Machine/sm_adp-flual.h:
-
-../State\ Machine/sm_adp-flual_user.h:

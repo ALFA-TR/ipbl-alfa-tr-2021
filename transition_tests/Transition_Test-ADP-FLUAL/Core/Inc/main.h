@@ -37,6 +37,14 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+typedef enum {
+	VC_RECORD_ID,
+	VC_RECORD_FLUENCY,
+	VC_SEND,
+	VC_PLAY_RECORDED,
+	VC_STOP_RECORD,
+	VC_INVALID
+} voiceCommandEnum_t;
 
 /* USER CODE END ET */
 

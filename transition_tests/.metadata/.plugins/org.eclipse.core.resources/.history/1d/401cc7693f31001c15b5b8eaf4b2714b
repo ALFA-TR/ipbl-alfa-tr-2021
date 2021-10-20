@@ -1,0 +1,22 @@
+/**
+  ******************************************************************************
+  * @file           : sm_adp-flual_user.h
+  * @brief          : ADP-FLUAL State Machine
+  ******************************************************************************
+  * @attention
+  *
+  *State Machine User definitions.
+  *
+  ******************************************************************************
+  */
+#include "main.h"
+#include "stdbool.h"
+#include ""
+
+#define ADPFLUAL_SETUP()		setup()
+
+void setup(void);
+
+#define ADPFLUIAL_GETVOICECOMMAND() getVoiceCommandEvent()
+
+bool getVoiceCommandEvent(voiceCommandEnum_t *trigger);

@@ -9,10 +9,8 @@
   *
   ******************************************************************************
   */
-
-#include "main.h"
-#include "sm_adp-flual.h"
 #include "sm_adp-flual_user.h"
+#include "sm_adp-flual.h"
 
 adpflual_State_t adpflual_State = SHUTDOWN;
 
@@ -40,21 +38,40 @@ void adpflual_State_Machine(void) {
 
 	case SHUTDOWN:
 		ADPFLUAL_SETUP();
-		adpflual_State = READY;
+		adpflual_State = SM_READY;
 		break;
-	case READY:
+	case SM_READY:{
+		ADPFLUAL_VC_LIST_TYPEDEF temp;
+		if(ADPFLUIAL_GETVOICECOMMAND(&temp)){
+			if(temp == VC_RECORD_ID){
+				ADPFLUAL_NEWFILE();
+				adpflual_State = SM_RECORD_ID;
+			}else if(temp == VC_RECORD_FLUENCY){
+				ADPFLUAL_NEWFILE();
+				adpflual_State = SM_RECORD_FLUENCY;
+			}else if(temp == VC_SEND){
+				ADPFLUAL_SEEK_WIFI_NETWORK();
+				adpflual_State = SM_CONNECT;
+			}else if(temp == VC_SEND){
+				ADPFLUAL_SEEK_WIFI_NETWORK();
+				adpflual_State = SM_CONNECT;
+		} else if(ADPFLUAL_TIMEROUT()){
+			ADPFLUAL_BLINK_RED_LED();
+			adpflual_State = SM_HARD_FAULT;
+		}
+	}
 		break;
-	case RECORD_ID:
+	case SM_RECORD_ID:
 		break;
-	case RECORD_FLUENCY:
+	case SM_RECORD_FLUENCY:
 		break;
-	case HARD_FAULT:
+	case SM_HARD_FAULT:
 		break;
-	case CONNECT:
+	case SM_CONNECT:
 		break;
-	case SEND:
+	case SM_SEND:
 		break;
-	case PLAY:
+	case SM_PLAY:
 		break;
 	}
 }
