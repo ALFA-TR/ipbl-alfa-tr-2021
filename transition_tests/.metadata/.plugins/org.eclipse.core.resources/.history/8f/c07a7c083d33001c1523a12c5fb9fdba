@@ -1,0 +1,277 @@
+/* USER CODE BEGIN Header */
+/**
+ ******************************************************************************
+ * @file           : sm_transition-tests.c
+ * @brief          : Header for main.c file.
+ *                   This file contains the common defines of the application.
+ ******************************************************************************
+ * @attention
+ *
+ *
+ ******************************************************************************
+ */
+/* USER CODE END Header */
+#include "main.h"
+#include "main.c"
+#include "sm_adp-flual.c"
+#include "sm_adp-flual.h"
+#include "sm_adp-flual_user.h"
+
+
+void stateMachineTransitionTests(){
+	send_Serial((const uint8_t *)"\033c");
+
+	/*
+	 * 1o teste de transição quando sai do Shutdown e configura o ambiente para READY.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test1: ");
+	executed_routines = 0;
+	adpflual_setState(SHUTDOWN);
+	generateTurnOnEvent();
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (SETUP_EXECUTED)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+
+	/*
+	 * 2o teste de transição quando sai do Ready e entra em Record_id para começar
+	 * uma gravação de arquivo no cartão SD.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test2: ");
+	executed_routines = 0;
+	adpflual_setState(SM_READY);
+	generateVoiceCommandEvent(VC_RECORD_ID);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_RECORD_ID && executed_routines == (NEW_FILE_EXECUTED)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+
+	/*
+	 * 3o teste de transição quando sai do Ready e entra em Record_Fluency para começar
+	 * uma gravação de arquivo no cartão SD.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test3: ");
+	executed_routines = 0;
+	adpflual_setState(SM_READY);
+	generateVoiceCommandEvent(VC_RECORD_FLUENCY);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_RECORD_FLUENCY && executed_routines == (NEW_FILE_EXECUTED)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+
+	/*
+	 * 4o teste de transição quando sai do Ready e entra em Hard_fault para começar
+	 * uma gravação de arquivo no cartão SD.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test4: ");
+	executed_routines = 0;
+	adpflual_setState(SM_READY);
+	generateTimerOutEvent();
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_HARD_FAULT && executed_routines == (BLINK_RED_LED)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+
+	/*
+	 * 5o teste de transição quando sai do Ready e entra em Connect para começar uma gravação
+	 * do arquivo no cartão SD.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test5: ");
+	executed_routines = 0;
+	adpflual_setState(SM_READY);
+	generateVoiceCommandEvent(VC_SEND);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_CONNECT && executed_routines == (SEEK_WIFI_NETWORK)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+
+	/*
+	 * 6o teste de transição quando sai do Ready e entra em PLay para começar uma reprodução
+	 * do arquivo no cartão SD.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test6: ");
+	executed_routines = 0;
+	adpflual_setState(SM_READY);
+	generateVoiceCommandEvent(VC_PLAY_RECORDED);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_PLAY && executed_routines == (PLAY_LAST_SOUND)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 7o teste de transição quando sai do Record_ID e entra em Ready para finalizar a gravação
+	 * do arquivo no cartão SD.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test7: ");
+	executed_routines = 0;
+	adpflual_setState(SM_RECORD_ID);
+	generateVoiceCommandEvent(VC_STOP_RECORD);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (CLOSE_FILE_RECORDED)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 8o teste de transição quando sai do Record Fluency Sound
+	 * e entra em Ready para finalizar a gravação de fluência no
+	 * arquivo no cartão SD.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test8: ");
+	executed_routines = 0;
+	adpflual_setState(SM_RECORD_FLUENCY);
+	generateVoiceCommandEvent(VC_STOP_RECORD);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (CLOSE_FILE_RECORDED)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 9o teste de transição quando sai do Connect e entra em SEND
+	 * para enviar os arquivos de áudio para o servidor.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test9: ");
+	executed_routines = 0;
+	adpflual_setState(SM_CONNECT);
+	generateConnectionEvent(CONNECTION_STATUS_SUCCESS);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_SEND && executed_routines == (START_SEND)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 10o teste de transição quando sai do Connect e volta para READY
+	 * para enviar os arquivos de áudio para o servidor.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test10: ");
+	executed_routines = 0;
+	adpflual_setState(SM_CONNECT);
+	generateConnectionEvent(CONNECTION_STATUS_FAIL);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (CONNECTION_FAIL_ALERT)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 11o teste de transição quando sai do SEND e volta para READY
+	 * informando o sucesso do envio dos arquivos de áudio para o servidor.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test11: ");
+	executed_routines = 0;
+	adpflual_setState(SM_SEND);
+	generateSendStatusEvent(SEND_SUCCESS);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (SEND_MESSAGE_ALERT)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+
+	/*
+	 * 12o teste de transição quando sai do SEND e volta para READY
+	 * informando a falha de envio dos arquivos de áudio para o servidor.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test12: ");
+	executed_routines = 0;
+	adpflual_setState(SM_SEND);
+	generateSendStatusEvent(SEND_FAIL);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (SEND_MESSAGE_ALERT)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 13o teste de transição quando sai do PLAY e volta para READY
+	 * finalizando a reprodução do áudio.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test13: ");
+	executed_routines = 0;
+	adpflual_setState(SM_PLAY);
+	generatePlayStatusEvent(STOP_PLAY);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (REBOOT_CAPTURE_FUNCTION)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+}
