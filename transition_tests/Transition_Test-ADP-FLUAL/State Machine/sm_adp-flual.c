@@ -40,9 +40,10 @@ void adpflual_State_Machine(void) {
 		ADPFLUAL_SETUP();
 		adpflual_State = SM_READY;
 		break;
+
 	case SM_READY:{
 		ADPFLUAL_VC_LIST_TYPEDEF temp;
-		if(ADPFLUIAL_GETVOICECOMMAND(&temp)){
+		if(ADPFLUIAL_GET_VOICECOMMAND(&temp)){
 			if(temp == VC_RECORD_ID){
 				ADPFLUAL_NEWFILE();
 				adpflual_State = SM_RECORD_ID;
@@ -62,9 +63,10 @@ void adpflual_State_Machine(void) {
 		}
 	}
 	break;
+
 	case SM_RECORD_ID:{
 		ADPFLUAL_VC_LIST_TYPEDEF temp;
-		if(ADPFLUIAL_GETVOICECOMMAND(&temp)){
+		if(ADPFLUIAL_GET_VOICECOMMAND(&temp)){
 			if(temp == VC_STOP_RECORD){
 				ADPFLUAL_STOP_RECORD();
 				adpflual_State = SM_READY;
@@ -72,23 +74,57 @@ void adpflual_State_Machine(void) {
 		}
 	}
 	break;
+
 	case SM_RECORD_FLUENCY:{
-
+		ADPFLUAL_VC_LIST_TYPEDEF temp;
+		if(ADPFLUIAL_GET_VOICECOMMAND(&temp)){
+			if(temp == VC_STOP_RECORD){
+				ADPFLUAL_STOP_RECORD();
+				adpflual_State = SM_READY;
+			}
+		}
 	}
 	break;
-	case SM_HARD_FAULT:{
 
-	}
-	break;
+	case SM_HARD_FAULT:
+		break;
+
 	case SM_CONNECT:{
+		ADPFLUAL_CONNECTION_LIST_TYPEDEF temp;
+		if(ADPFLUAL_GET_CONNECTION_STATUS(&temp)){
+			if(temp == CONNECTION_STATUS_SUCCESS){
+				ADPFLUAL_START_SEND();
+				adpflual_State = SM_SEND;
+			}else if(temp == CONNECTION_STATUS_FAIL){
+				ADPFLUAL_CONNECTION_FAIL();
+				adpflual_State = SM_READY;
+			}
+		}
 
 	}
 	break;
 	case SM_SEND:{
+		ADPFLUAL_SEND_STATUS_LIST_TYPEDEF temp;
+		if(ADPFLUAL_GET_SEND_STATUS(&temp)){
+			if(temp == SEND_SUCCESS){
+				ADPFLUAL_SEND_MESSAGE();
+				adpflual_State = SM_READY;
+			}else if(temp == SEND_FAIL){
+				ADPFLUAL_SEND_MESSAGE();
+				adpflual_State = SM_READY;
+			}
+		}
 
 	}
 	break;
 	case SM_PLAY:{
+		ADPFLUAL_PLAY_STATUS_LIST_TYPEDEF temp;
+		if(ADPFLUAL_GET_PLAY_STATUS(&temp)){
+			if(temp == STOP_PLAY){
+				ADPFLUAL_REBOOT_CAPTURE_FUNCTION();
+				adpflual_State = SM_READY;
+			}
+		}
 
 	}
 	break;

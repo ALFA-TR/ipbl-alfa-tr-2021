@@ -39,14 +39,17 @@
 #define FAIL_TEXT	 (const uint8_t*) "\033[0;37;41mTest Fail!\033[0;39;49m\n\r"
 
 
-#define SETUP_EXECUTED		0x00000001
-#define NEW_FILE_EXECUTED 	0x00000002
-#define BLINK_RED_LED		0x00000004
-#define SEEK_WIFI_NETWORK	0x00000008
-#define PLAY_LAST_SOUND		0x00000010
-#define CLOSE_FILE_RECORDED	0x00000020
-#define START_SEND			0x00000040
-#define FINISH_SEND			0x00000080
+#define SETUP_EXECUTED			0x00000001
+#define NEW_FILE_EXECUTED 		0x00000002
+#define BLINK_RED_LED			0x00000004
+#define SEEK_WIFI_NETWORK		0x00000008
+#define PLAY_LAST_SOUND			0x00000010
+#define CLOSE_FILE_RECORDED		0x00000020
+#define START_SEND				0x00000040
+#define FINISH_SEND				0x00000080
+#define CONNECTION_FAIL_ALERT	0x00000100
+#define SEND_MESSAGE_ALERT  	0x00000200
+#define REBOOT_CAPTURE_FUNCTION 0x00000400
 
 /* USER CODE END PD */
 
@@ -59,10 +62,23 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
+/*Events status variables
+ *
+ * */
+
 bool TurnOnEvent = false;
 bool VoiceCommandEvent = false;
 bool TimerOutEvent = false;
+bool ConnectionEvent = false;
+bool SendStatusEvent = false;
+bool PlayStatusEvent = false;
+/*Actions status variables
+ *
+ * */
 voiceCommandEnum_t voiceCommand = VC_INVALID;
+connectionStatusEnum_t connectionStatus = CONNECTION_STATUS_OFF;
+sendStatusEnum_t sendStatus = SEND_OFF;
+playStatusEvent_t playStatus = STOP_PLAY;
 uint32_t executed_routines = 0;
 
 /* USER CODE END PV */
@@ -82,40 +98,50 @@ void send_Serial(const uint8_t * text){
 }
 
 /*****************************************************************************
- * Actions application
+ * MOC for Actions application
  *
  */
 void setup(void){
-	//MOC DO SETUP.
 	executed_routines |= SETUP_EXECUTED;
 }
+
 void newFileExecuted(void){
-	//MOC para gerar um novo arquivo.
 	executed_routines |= NEW_FILE_EXECUTED;
 }
 
 void blinkRedLed(void){
-	//MOC para simular o Hard_Fault.
 	executed_routines |= BLINK_RED_LED;
 }
 
 void seekWifiNetwork(void){
-	//MOC para simular a procura de rede wi-fi.
 	executed_routines |= SEEK_WIFI_NETWORK;
 }
 
 void playLastSound(void){
-	//Moc para simular o play do áudio no sd.
 	executed_routines |= PLAY_LAST_SOUND;
 }
 
 void stopRecord(void){
-	//Moc do comando que para a gravação.
 	executed_routines |= CLOSE_FILE_RECORDED;
 }
 
+void startSend(void){
+	executed_routines |= START_SEND;
+}
+
+void connectionFailAlert(void){
+	executed_routines |= CONNECTION_FAIL_ALERT;
+}
+
+void sendMessageAlert(void){
+	executed_routines |= SEND_MESSAGE_ALERT;
+}
+
+void rebootCaptureFunction(void){
+	executed_routines |= REBOOT_CAPTURE_FUNCTION;
+}
 /*****************************************************************************
- * Events application
+ * Mocs for Events application
  *
  */
 void generateTurnOnEvent(void){
@@ -148,10 +174,50 @@ void generateTimerOutEvent(void){
 
 bool getTimerOutEvent(void){
 	bool retVal = TimerOutEvent;
-
 	TimerOutEvent = false;
 	return retVal;
 }
+
+void generateConnectionEvent(connectionStatusEnum_t value){
+	connectionStatus = value;
+	ConnectionEvent = true;
+}
+
+bool getConnectionEvent(connectionStatusEnum_t *trigger){
+	bool retVal = ConnectionEvent;
+	*trigger = connectionStatus;
+	ConnectionEvent = false;
+	connectionStatus = CONNECTION_STATUS_OFF;
+	return retVal;
+}
+
+void generateSendStatusEvent(sendStatusEnum_t value){
+	sendStatus = value;
+	SendStatusEvent = true;
+}
+
+bool getSendStatusEvent(sendStatusEnum_t *trigger){
+	bool retVal = SendStatusEvent;
+	*trigger = sendStatus;
+	SendStatusEvent = false;
+	sendStatus = SEND_OFF;
+	return retVal;
+}
+
+void generatePlayStatusEvent(playStatusEvent_t value){
+	playStatus = value;
+	PlayStatusEvent = true;
+}
+
+bool getPlayStatusEvent(playStatusEvent_t *trigger){
+	bool retVal = PlayStatusEvent;
+	*trigger = playStatus;
+	PlayStatusEvent = false;
+	playStatus = STOP_PLAY;
+	return retVal;
+}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -183,6 +249,7 @@ int main(void)
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
 	MX_USART2_UART_Init();
+
 	/* USER CODE BEGIN 2 */
 	/*
 	 * Clear terminal prompt.
@@ -326,6 +393,123 @@ int main(void)
 		//Falha no teste.
 		send_Serial(FAIL_TEXT);
 	}
+	/*
+	 * 8o teste de transição quando sai do Record Fluency Sound
+	 * e entra em Ready para finalizar a gravação de fluência no
+	 * arquivo no cartão SD.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test8: ");
+	executed_routines = 0;
+	adpflual_setState(SM_RECORD_FLUENCY);
+	generateVoiceCommandEvent(VC_STOP_RECORD);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (CLOSE_FILE_RECORDED)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 9o teste de transição quando sai do Connect e entra em SEND
+	 * para enviar os arquivos de áudio para o servidor.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test9: ");
+	executed_routines = 0;
+	adpflual_setState(SM_CONNECT);
+	generateConnectionEvent(CONNECTION_STATUS_SUCCESS);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_SEND && executed_routines == (START_SEND)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 10o teste de transição quando sai do Connect e volta para READY
+	 * para enviar os arquivos de áudio para o servidor.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test10: ");
+	executed_routines = 0;
+	adpflual_setState(SM_CONNECT);
+	generateConnectionEvent(CONNECTION_STATUS_FAIL);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (CONNECTION_FAIL_ALERT)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 11o teste de transição quando sai do SEND e volta para READY
+	 * informando o sucesso do envio dos arquivos de áudio para o servidor.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test11: ");
+	executed_routines = 0;
+	adpflual_setState(SM_SEND);
+	generateSendStatusEvent(SEND_SUCCESS);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (SEND_MESSAGE_ALERT)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+
+	/*
+	 * 12o teste de transição quando sai do SEND e volta para READY
+	 * informando a falha de envio dos arquivos de áudio para o servidor.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test12: ");
+	executed_routines = 0;
+	adpflual_setState(SM_SEND);
+	generateSendStatusEvent(SEND_FAIL);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (SEND_MESSAGE_ALERT)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+	/*
+	 * 13o teste de transição quando sai do PLAY e volta para READY
+	 * finalizando a reprodução do áudio.
+	 *
+	 * */
+	send_Serial((const uint8_t *)"Transition Test13: ");
+	executed_routines = 0;
+	adpflual_setState(SM_PLAY);
+	generatePlayStatusEvent(STOP_PLAY);
+	adpflual_State_Machine();
+
+	if(adpflual_getState()== SM_READY && executed_routines == (REBOOT_CAPTURE_FUNCTION)){
+		//Sucesso no teste.
+		send_Serial(SUCCESS_TEXT);
+	}
+	else {
+		//Falha no teste.
+		send_Serial(FAIL_TEXT);
+	}
+
 
 	/* USER CODE END 2 */
 
@@ -337,7 +521,6 @@ int main(void)
 
 		/* USER CODE BEGIN 3 */
 	}
-	/* USER CODE END 3 */
 }
 
 /**

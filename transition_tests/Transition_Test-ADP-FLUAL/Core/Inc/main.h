@@ -1,22 +1,22 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.h
+ * @brief          : Header for main.c file.
+ *                   This file contains the common defines of the application.
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -45,6 +45,25 @@ typedef enum {
 	VC_STOP_RECORD,
 	VC_INVALID
 } voiceCommandEnum_t;
+
+typedef enum {
+	CONNECTION_STATUS_SUCCESS,
+	CONNECTION_STATUS_FAIL,
+	CONNECTION_STATUS_CLOSED,
+	CONNECTION_STATUS_OFF
+} connectionStatusEnum_t;
+
+typedef enum {
+	SEND_SUCCESS,
+	SEND_FAIL,
+	SEND_OFF
+} sendStatusEnum_t;
+
+typedef enum {
+	START_PLAY,
+	PLAYING,
+	STOP_PLAY
+} playStatusEvent_t;
 
 /* USER CODE END ET */
 
