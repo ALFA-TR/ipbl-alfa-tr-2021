@@ -46,6 +46,8 @@ void setup()
     testeCaseUS130_1();
     testeCaseUS130_2();
     testeCaseUS130_3();
+
+    Serial.println("FIM DOS CASOS DE TESTES");
   }
   else
   {
@@ -168,8 +170,10 @@ void testeCaseUS128_2(){
   Serial.println("Iniciando módulo de cartão SD!");
   mountSdCard();  
   Serial.println("Módulo de cartão SD reconhecido!");
+  delay(2000);
   Serial.println("/nDetectando Cartão SD inserido no módulo");
   SD_Detect();
+  delay(2000);
   Serial.println("/n Listando arquivos no cartao SD:");
   SD_ListDir("/",2);
   Serial.println("------------fim do teste------------\n\n");
@@ -208,7 +212,20 @@ void testeCaseUS128_3(){
 void testeCaseUS129_1(){
   Serial.println("------------testeCaseUS129_1------------");
   Serial.println("Meta: Salvar um arquivo FAT");  
-
+  Serial.println("Iniciando módulo de cartão SD!");
+  mountSdCard(); 
+  delay(2000);
+  Serial.println("Listando arquivos na pasta testes do cartao SD:");
+  SD_ListDir("/testes",1);
+  delay(2000);
+  Serial.println("Criando arquivo ARQUIVO_CASO_DE_TESTE_129.txt");
+  SD_mkFile("/testes/ARQUIVO_CASO_DE_TESTE_129.txt");
+  uint8_t buff[100] = "teste de arquivo";
+  SD_WriteFile(buff,100,"/testes/ARQUIVO_CASO_DE_TESTE_129.txt");
+  Serial.println("Arquivo Criado!");
+  delay(2000);
+  Serial.println("Listando arquivos na pasta testes do cartao SD:");
+  SD_ListDir("/testes",1);
   Serial.println("------------fim do teste------------\n\n");
   delay(10000);
 }
@@ -216,7 +233,12 @@ void testeCaseUS129_1(){
 void testeCaseUS129_2(){
   Serial.println("------------testeCaseUS129_2------------");
   Serial.println("Meta: Ler um arquivo FAT");  
-
+  Serial.println("Lendo arquivo ARQUIVO_CASO_DE_TESTE_129.txt na pasta testes");
+  Serial.println("Conteudo:\n");
+  uint8_t buff[100];
+  File teste;
+  SD_ReadFile(teste,buff,100,"/testes/ARQUIVO_CASO_DE_TESTE_129.txt");
+  Serial.println((char*)buff);
   Serial.println("------------fim do teste------------\n\n");
   delay(10000);
 }
@@ -224,7 +246,18 @@ void testeCaseUS129_2(){
 void testeCaseUS129_3(){
   Serial.println("------------testeCaseUS129_3------------");
   Serial.println("Meta: Excluir um arquivo FAT");  
-
+  Serial.println("Iniciando módulo de cartão SD!");
+  mountSdCard(); 
+  delay(2000);
+  Serial.println("Listando arquivos na pasta testes do cartao SD:");
+  SD_ListDir("/testes",1);
+  delay(2000);
+  Serial.println("Removendo arquivo ARQUIVO_CASO_DE_TESTE_129.txt");
+  SD_rmFile("/testes/ARQUIVO_CASO_DE_TESTE_129.txt");
+  Serial.println("Arquivo Removido!");
+  delay(2000);
+  Serial.println("Listando arquivos na pasta testes do cartao SD:");
+  SD_ListDir("/testes",1);
   Serial.println("------------fim do teste------------\n\n");
   delay(10000);
 }
