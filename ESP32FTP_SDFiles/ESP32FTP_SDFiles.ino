@@ -26,9 +26,30 @@ void setup()
   
   if(rodarTestes) 
   {
+  
+    // CASOS DE TESTE US 110
+    delay(5000);
     testeCaseUS110_1();
     testeCaseUS110_2();
     testeCaseUS110_3();
+
+    // CASOS DE TESTE US 128
+    delay(5000);
+    testeCaseUS128_1();
+    testeCaseUS128_2();
+    testeCaseUS128_3();
+
+    // CASOS DE TESTE US 129
+    delay(5000);
+    testeCaseUS129_1();
+    testeCaseUS129_2();
+    testeCaseUS129_3();
+
+    // CASOS DE TESTE US 130
+    delay(5000);
+    testeCaseUS130_1();
+    testeCaseUS130_2();
+    testeCaseUS130_3();
   }
   else
   {
@@ -85,6 +106,9 @@ void sendFile2FTP(const char* filePath, ESP32_FTPClient ftpClient) {
     file.close();
 }
 
+//===============================================================
+//                CASOS DE TESTE US 110
+//===============================================================
 void testeCaseUS110_1(){
     Serial.println("------------testeCaseUS110_1------------");
     Serial.println("Meta: Teste de conexão com o Server");
@@ -94,6 +118,7 @@ void testeCaseUS110_1(){
     Serial.println("Conectado ao servidor ftp!");
     ftp.CloseConnection();  
     Serial.println("------------fim do teste------------\n\n");
+    delay(2000);
 }
 
 void testeCaseUS110_2(){
@@ -106,6 +131,7 @@ void testeCaseUS110_2(){
   sendFile2FTP("/gravacoes/teste.txt", ftp);
   ftp.CloseConnection();
   Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
 }
 
 
@@ -122,4 +148,108 @@ void testeCaseUS110_3(){
   Serial.println("O conteudo do arquivo baixado é: \n" + response);
   ftp.CloseConnection();
   Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
+}
+
+
+//===============================================================
+//                CASOS DE TESTE US 128
+//===============================================================
+
+void testeCaseUS128_1(){
+  Serial.println("------------testeCaseUS128_1------------");
+  Serial.println("Meta: Teste do módulo leitor de cartão SD");  
+
+  Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
+}
+
+void testeCaseUS128_2(){
+  Serial.println("------------testeCaseUS128_2------------");
+  Serial.println("Meta: Teste do Cartão Micro SD 4GB (ler arquivos)");  
+
+  Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
+}
+
+void testeCaseUS128_3(){
+  Serial.println("------------testeCaseUS128_3------------");
+  Serial.println("Meta: Ligar o dispositivo sem cartão SD");  
+
+  Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
+}
+
+
+//===============================================================
+//                CASOS DE TESTE US 129
+//===============================================================
+
+void testeCaseUS129_1(){
+  Serial.println("------------testeCaseUS129_1------------");
+  Serial.println("Meta: Salvar um arquivo FAT");  
+
+  Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
+}
+
+void testeCaseUS129_2(){
+  Serial.println("------------testeCaseUS129_2------------");
+  Serial.println("Meta: Ler um arquivo FAT");  
+
+  Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
+}
+
+void testeCaseUS129_3(){
+  Serial.println("------------testeCaseUS129_3------------");
+  Serial.println("Meta: Excluir um arquivo FAT");  
+
+  Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
+}
+
+
+//===============================================================
+//                CASOS DE TESTE US 130
+//===============================================================
+
+void testeCaseUS130_1(){
+  Serial.println("------------testeCaseUS130_1------------");
+  Serial.println("Meta: Teste de comunicação via rádio 2,4 GH");  
+  connect2Wifi();
+  Serial.println("Conexão Wifi está OK!");  
+  Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
+}
+
+void testeCaseUS130_2(){
+  Serial.println("------------testeCaseUS130_2------------");
+  Serial.println("Meta: Teste de ping por meio do protocolo TCP/IP");  
+  Serial.println("Iniciando Conexão com Wifi!"); 
+  connect2Wifi();
+  Serial.println("ATENÇÃO, nos próximos 60 segundos você DEVE realizar um teste de ping no ip do ESP32 informado anteriormente!\n"); 
+    for (int i = 0; i <= 60; i++) {
+    Serial.print(".");
+    delay(1000);
+    }
+    Serial.println("Fim dos 60 segundos!");
+  Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
+}
+
+void testeCaseUS130_3(){
+  Serial.println("------------testeCaseUS130_3------------");
+  Serial.println("Meta: ");  
+  connect2Wifi();
+  mountSdCard();  
+  ftp.OpenConnection();  
+  Serial.println("Baixando arquivo testeDeDownload.txt do servidor!");
+  String response = "";
+  ftp.InitFile("Type A");
+  ftp.DownloadString("testeDeDownload.txt", response);
+  Serial.println("O conteudo do arquivo baixado é: \n" + response);
+  ftp.CloseConnection();
+  Serial.println("------------fim do teste------------\n\n");
+  delay(2000);
 }
