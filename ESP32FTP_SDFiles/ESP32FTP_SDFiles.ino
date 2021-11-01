@@ -8,6 +8,7 @@
 #include "octocat.h" 
 #include "Secrets.h"
 
+#include <LiquidCrystal.h>
 
 char ftp_server[] = "192.168.0.146";
 char ftp_user[]   = "manfrim";
@@ -17,12 +18,19 @@ char ftp_pass[]   = "admin123";
 // you can pass a FTP timeout and debbug mode on the last 2 arguments
 ESP32_FTPClient ftp (ftp_server,ftp_user,ftp_pass, 5000, 0); // Disable Debug to increase Tx Speed
 
+// Create An LCD Object. Signals: [ RS, EN, D4, D5, D6, D7 ]
+LiquidCrystal My_LCD(13, 12, 14, 27, 26, 25);
+
 void setup()
 {  
+
+  My_LCD.begin(16, 2);
+  My_LCD.clear();
+  
   Serial.begin( 115200 );
   WiFi.begin( WIFI_SSID, WIFI_PASS );
   
-  bool rodarTestes = true;
+  bool rodarTestes = false;
   
   if(rodarTestes) 
   {
@@ -52,6 +60,7 @@ void setup()
   else
   {
     WiFi.begin( WIFI_SSID, WIFI_PASS );  
+    My_LCD.print("Conectando Wifi!");
     connect2Wifi();
     mountSdCard();  
     ftp.OpenConnection();  
