@@ -10,7 +10,7 @@ uint8_t* spi_slave_tx_buf;
 uint8_t* spi_slave_rx_buf;
 
 // FTP
-char ftp_server[] = "192.168.1.39";
+char ftp_server[] = "192.168.0.146";
 char ftp_user[]   = "manfrim";
 char ftp_pass[]   = "admin123";
 // you can pass a FTP timeout and debbug mode on the last 2 arguments
@@ -29,6 +29,7 @@ enum estado {
   aguardando_wifi,
   wifi_conectado,
   conectar_ftp,
+  comandoSTM_enviar_arquivos,
   enviar_gravacoes,
   enviando_gravacoes,
   desligar_wifi,
@@ -100,7 +101,9 @@ void setup() {
 
 // MÉTODO LOOP COM A PRINCIPAL LÓGICA DA ESP32
 void loop() {
-  // interpreta entrada Serial (Botoes ou teclado)
+  //=======================================================
+  // INTERPRETA IHM (ATUALMENTE ESTA NA SERIAL LENDO ASCII)
+  //=======================================================
   if (Serial.available() > 0) {
     // lê do buffer o dado recebido:
     String comando = Serial.readString();
@@ -145,14 +148,18 @@ void loop() {
     else {
       Serial.println("Comando não reconhecido!");
     }
-  } // FIM DA INTERPRETACAO DE COMANDOS
+  }
+  //=======================================================
+  // FIM DA INTERPRETACAO DE COMANDOS
+  //=======================================================
 
-
+  //=======================================================
   // INICIO DA MAQUINA DE ESTADOS
+  //=======================================================
   switch (estadoAtual) {
     case pronto:
       // TODO: INDICAR PARA STM QUE PODE ENVIAR INFORMACAO
-      // TODO: LER DADOS STM (MIC PARA INTERPRETAR COMANDOS DE VOZ)
+      readSPI();
       break;
 
     case iniciar_gravacao:
@@ -199,13 +206,26 @@ void loop() {
       break;
 
     case enviando_gravacoes:
-      // TODO: implementar envio de gravacoes para servidor ftp
-      // if (terminou de enviar)
+      readSPI();
+      //TODO: LER BUFFER DO SPI E ENVIAR PARA FTP
+      ftp.InitFile("Type A");
+      ftp.NewFile("ARQUIVO_AUDIO.wav");
+
+      Serial.println("Enviando arquivo: ARQUIVO_AUDIO.wav");
+      Serial.println("inicio da transmissão");
+
+      ftp.WriteData(spi_slave_rx_buf, 1024);
+
+      Serial.println("Arquivo enviado!");
+      
+      ftp.CloseFile();
+      ftp.CloseConnection();
+      
       {
         estadoAtual = desligar_wifi;
       }
       break;
-      
+
     case desligar_wifi:
       WiFi.disconnect(true);
       WiFi.mode(WIFI_OFF);
@@ -213,14 +233,16 @@ void loop() {
         estadoAtual = pronto;
       }
       break;
-      
+
     case falha:
       // comando(falha)
       break;
-      
+
     default:
       Serial.println("ESTADO DESCONHECIDO!");
       break;
   }
+  //=======================================================
   // FIM DA MAQUINA DE ESTADOS
+  //=======================================================
 }
