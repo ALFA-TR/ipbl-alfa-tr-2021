@@ -1,7 +1,8 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
-#include <ESP32_FTPClient.h>
+#include <ESP32_FTPClient.h>  
 #include <ESP32DMASPISlave.h>
+#include "CRC16.h"
 
 // SPI
 ESP32DMASPI::Slave slave;
@@ -37,7 +38,107 @@ enum estado {
   falha
 };
 
+const char* nomesEstado[] = {
+  "pronto",
+  "iniciar_gravacao",
+  "gravando",
+  "terminar_gravacao",
+  "iniciar_transmissao_gravacoes",
+  "conectar_wifi",
+  "aguardando_wifi",
+  "wifi_conectado",
+  "conectar_ftp",
+  "comandoSTM_enviar_arquivos",
+  "enviar_gravacoes",
+  "enviando_gravacoes",
+  "desligar_wifi",
+  "envia_comando_play",
+  "falha"
+};
+
+enum maquinaEstadoGERAL {
+  SHUTDOWN,
+  SM_READY,
+  SM_RECORD_ID,
+  SM_RECORD_FLUENCY,
+  SM_HARD_FAULT,
+  SM_CONNECT,
+  SM_SEND,
+  SM_PLAY
+}
+const char* nomesMaquinaEstadoGERAL[] = {
+  "SHUTDOWN",
+  "SM_READY",
+  "SM_RECORD_ID",
+  "SM_RECORD_FLUENCY",
+  "SM_HARD_FAULT",
+  "SM_CONNECT",
+  "SM_SEND",
+  "SM_PLAY"  
+}
 int estadoAtual = pronto;
+
+// MÉTODO QUE MONTA MSGS DE COMANDO PARA STM
+uint8_t * mountCommand(byte command) {
+  uint8_t commandBuffer[9];
+  //Header 'ALFA'0x41, 0x4c, 0x46, 0x41
+  //size = 01 uint16 | 0x00, 0x01
+  //payload com o comando, lista de comandos:
+  //            - 1 SM_READY, CRC: 947E
+  //            - 2 SM_RECORD_ID, CRC: 953E
+  //            - 3 SM_RECORD_FLUENCY, CRC: 55FF
+  //            - 6 SM_SEND, CRC: 563F
+  //            - 7 SM_PLAY, CRC: 96FE
+  // CRC16
+  commandBuffer[0] = 0x41;
+  commandBuffer[1] = 0x4c;
+  commandBuffer[2] = 0x46;
+  commandBuffer[3] = 0x41;
+  commandBuffer[4] = 0x00;
+  commandBuffer[5] = 0x01;
+  commandBuffer[6] = command;
+
+  //monta o CRC, TODO: implementar método que calcula CRC16 modbus e corrigir aqui para que nao fique fixo
+  switch (command) {
+    case (0x01):
+      commandBuffer[7] = 0x94;
+      commandBuffer[8] = 0x7E;
+      break;
+    case (0x02):
+      commandBuffer[7] = 0x95;
+      commandBuffer[8] = 0x3E;
+      break;
+    case (0x03):
+      commandBuffer[7] = 0x55;
+      commandBuffer[8] = 0xFF;
+      break;
+    case (0x06):
+      commandBuffer[7] = 0x56;
+      commandBuffer[8] = 0x3F;
+      break;
+    case (0x07):
+      commandBuffer[7] = 0x96;
+      commandBuffer[8] = 0xFE;
+      break;
+  }
+
+  return commandBuffer;
+}
+
+//MÉTODO PARA ENVIAR UM COMANDO PARA STM
+bool sendCommand(byte command){
+  // TODO: verificar se pode enviar para stm antes de enviar
+  uint8_t buffer[9] = mountCommand(command);
+  Serial.println("Enviando comando para stm: ")
+  Serial.println(nomesMaquinaEstadoGERAL[command]);
+  for (int i = 0; i < 9; i++)
+  {
+    Serial.print(" ");
+    Serial.print(buffer[i], HEX);
+  }
+  Serial.println();
+  return true;
+}
 
 // MÉTODO PARA LER DADOS SPI
 void readSPI() {
@@ -101,6 +202,7 @@ void setup() {
 
 // MÉTODO LOOP COM A PRINCIPAL LÓGICA DA ESP32
 void loop() {
+  int estadoAnterior = estadoAtual;
   //=======================================================
   // INTERPRETA IHM (ATUALMENTE ESTA NA SERIAL LENDO ASCII)
   //=======================================================
@@ -217,10 +319,10 @@ void loop() {
       ftp.WriteData(spi_slave_rx_buf, 1024);
 
       Serial.println("Arquivo enviado!");
-      
+
       ftp.CloseFile();
       ftp.CloseConnection();
-      
+
       {
         estadoAtual = desligar_wifi;
       }
@@ -245,4 +347,9 @@ void loop() {
   //=======================================================
   // FIM DA MAQUINA DE ESTADOS
   //=======================================================
+  if (estadoAnterior != estadoAtual)
+  {
+    Serial.println("Novo estado:");
+    Serial.println(nomesEstado[estadoAtual]);
+  }
 }
