@@ -4,8 +4,8 @@
 #include <ESP32DMASPISlave.h>
 #include "CRC16.h"
 
-#define ESP32_INPUT = 27;
-#define ESP32_OUTPUT = 28;
+#define ESP32_INPUT 27
+#define ESP32_OUTPUT 28
 
 // SPI
 ESP32DMASPI::Slave slave;
@@ -67,9 +67,9 @@ enum maquinaEstadoGERAL {
   SM_HARD_FAULT,
   SM_CONNECT,
   SM_SEND,
-  SM_PLAY,
-  SM_STOP
-}
+  SM_PLAY
+};
+
 const char* nomesMaquinaEstadoGERAL[] = {
   "SHUTDOWN",
   "SM_READY",
@@ -79,12 +79,12 @@ const char* nomesMaquinaEstadoGERAL[] = {
   "SM_CONNECT",
   "SM_SEND",
   "SM_PLAY"
-}
+};
+
 int estadoAtual = pronto;
 
 // MÉTODO QUE MONTA MSGS DE COMANDO PARA STM
-uint8_t * mountCommand(byte command) {
-  uint8_t commandBuffer[9];
+void mountCommand(byte command, uint8_t (& commandBuffer)[9]) {
   //Header 'ALFA'0x41, 0x4c, 0x46, 0x41
   //size = 01 uint16 | 0x00, 0x01
   //payload com o comando, lista de comandos:
@@ -125,8 +125,6 @@ uint8_t * mountCommand(byte command) {
       commandBuffer[8] = 0xFE;
       break;
   }
-
-  return commandBuffer;
 }
 
 //MÉTODO PARA ENVIAR UM COMANDO PARA STM
@@ -134,13 +132,14 @@ bool sendCommand(byte command) {
   //verificar se pode enviar para stm antes de enviar
   if (ESP32_INPUT == LOW)
   {
-    uint8_t buffer[9] = mountCommand(command);
-    Serial.println("Enviando comando para stm: ")
+    uint8_t commandBuffer[9] = {0,0,0,0,0,0,0,0,0};
+    mountCommand(command, commandBuffer);
+    Serial.println("Enviando comando para stm: ");
     Serial.println(nomesMaquinaEstadoGERAL[command]);
     for (int i = 0; i < 9; i++)
     {
       Serial.print(" ");
-      Serial.print(buffer[i], HEX);
+      Serial.print(commandBuffer[i], HEX);
     }
     Serial.println();
     return true;
@@ -305,7 +304,7 @@ void loop() {
 
     case terminar_gravacao:
       //TODO: ENVIAR PARA NUCLEO PARAR GRAVACAO
-      if (sendCommand(SM_STOP))
+      if (sendCommand(SM_READY))
         estadoAtual = pronto;
       break;
 
