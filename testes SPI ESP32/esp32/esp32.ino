@@ -1,8 +1,11 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
-#include <ESP32_FTPClient.h>  
+#include <ESP32_FTPClient.h>
 #include <ESP32DMASPISlave.h>
 #include "CRC16.h"
+
+#define ESP32_INPUT = 27;
+#define ESP32_OUTPUT = 28;
 
 // SPI
 ESP32DMASPI::Slave slave;
@@ -64,7 +67,8 @@ enum maquinaEstadoGERAL {
   SM_HARD_FAULT,
   SM_CONNECT,
   SM_SEND,
-  SM_PLAY
+  SM_PLAY,
+  SM_STOP
 }
 const char* nomesMaquinaEstadoGERAL[] = {
   "SHUTDOWN",
@@ -74,7 +78,7 @@ const char* nomesMaquinaEstadoGERAL[] = {
   "SM_HARD_FAULT",
   "SM_CONNECT",
   "SM_SEND",
-  "SM_PLAY"  
+  "SM_PLAY"
 }
 int estadoAtual = pronto;
 
@@ -126,18 +130,22 @@ uint8_t * mountCommand(byte command) {
 }
 
 //MÉTODO PARA ENVIAR UM COMANDO PARA STM
-bool sendCommand(byte command){
-  // TODO: verificar se pode enviar para stm antes de enviar
-  uint8_t buffer[9] = mountCommand(command);
-  Serial.println("Enviando comando para stm: ")
-  Serial.println(nomesMaquinaEstadoGERAL[command]);
-  for (int i = 0; i < 9; i++)
+bool sendCommand(byte command) {
+  //verificar se pode enviar para stm antes de enviar
+  if (ESP32_INPUT == LOW)
   {
-    Serial.print(" ");
-    Serial.print(buffer[i], HEX);
+    uint8_t buffer[9] = mountCommand(command);
+    Serial.println("Enviando comando para stm: ")
+    Serial.println(nomesMaquinaEstadoGERAL[command]);
+    for (int i = 0; i < 9; i++)
+    {
+      Serial.print(" ");
+      Serial.print(buffer[i], HEX);
+    }
+    Serial.println();
+    return true;
   }
-  Serial.println();
-  return true;
+  else return false;
 }
 
 // MÉTODO PARA LER DADOS SPI
@@ -176,6 +184,13 @@ void connect2Wifi() {
 
 // MÉTODO QUE INICIALIZA ESP32
 void setup() {
+
+  // pino para verificar se esp32 pode enviar para stm
+  pinMode(ESP32_INPUT, INPUT);
+
+  // pino para informa stm que pode enviar para esp32
+  pinMode(ESP32_OUTPUT, OUTPUT);
+
   // inicializa serial para receber comandos
   Serial.begin(115200);
 
@@ -255,18 +270,33 @@ void loop() {
   // FIM DA INTERPRETACAO DE COMANDOS
   //=======================================================
 
+  if (estadoAtual == pronto) {
+    //INDICAR PARA STM QUE PODE ENVIAR INFORMACAO
+    digitalWrite(ESP32_OUTPUT, HIGH);
+  } else {
+    //INDICAR PARA STM QUE NÃOPODE ENVIAR INFORMACAO
+    digitalWrite(ESP32_OUTPUT, LOW);
+  }
+
   //=======================================================
   // INICIO DA MAQUINA DE ESTADOS
   //=======================================================
   switch (estadoAtual) {
     case pronto:
-      // TODO: INDICAR PARA STM QUE PODE ENVIAR INFORMACAO
       readSPI();
       break;
 
     case iniciar_gravacao:
-      // TODO: ENVIAR PARA NUCLEO INICIAR GRAVACAO COM A VARIAVARIAVEL FLUENCY
-      estadoAtual = gravando;
+      //ENVIAR PARA NUCLEO INICIAR GRAVACAO COM A VARIAVARIAVEL FLUENCY
+      if (!FLUENCY) {
+        if (sendCommand(SM_RECORD_ID))
+          estadoAtual = gravando;
+      }
+      else {
+        if (sendCommand(SM_RECORD_FLUENCY))
+          estadoAtual = gravando;
+      }
+
       break;
 
     case gravando:
@@ -274,8 +304,9 @@ void loop() {
       break;
 
     case terminar_gravacao:
-      // TODO: ENVIAR PARA NUCLEO PARAR GRAVACAO
-      estadoAtual = pronto;
+      //TODO: ENVIAR PARA NUCLEO PARAR GRAVACAO
+      if (sendCommand(SM_STOP))
+        estadoAtual = pronto;
       break;
 
     case enviar_gravacoes:
@@ -303,8 +334,9 @@ void loop() {
       break;
 
     case comandoSTM_enviar_arquivos:
-      // TODO: ENVIAR COMANDO PARA STM ENVIAR ARQUIVOS PARA ESP32
-      estadoAtual = enviando_gravacoes;
+      //ENVIAR COMANDO PARA STM ENVIAR ARQUIVOS PARA ESP32
+      if (sendCommand(SM_SEND))
+        estadoAtual = enviando_gravacoes;
       break;
 
     case enviando_gravacoes:
