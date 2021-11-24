@@ -19,7 +19,7 @@ char ftp_server[] = "192.168.0.146";
 char ftp_user[]   = "manfrim";
 char ftp_pass[]   = "admin123";
 // you can pass a FTP timeout and debbug mode on the last 2 arguments
-ESP32_FTPClient ftp (ftp_server, ftp_user, ftp_pass, 5000, 0); // Disable Debug to increase Tx Speed
+ESP32_FTPClient ftp(ftp_server, ftp_user, ftp_pass, 5000, 1); // Disable Debug to increase Tx Speed
 
 
 bool FLUENCY = false; // variavel para controlar se a gravacao vai ser do ID ou da fluencia, caso seja true será a fluencia
@@ -34,7 +34,6 @@ enum estado {
   aguardando_wifi,
   wifi_conectado,
   conectar_ftp,
-  comandoSTM_enviar_arquivos,
   enviar_gravacoes,
   enviando_gravacoes,
   desligar_wifi,
@@ -52,7 +51,6 @@ const char* nomesEstado[] = {
   "aguardando_wifi",
   "wifi_conectado",
   "conectar_ftp",
-  "comandoSTM_enviar_arquivos",
   "enviar_gravacoes",
   "enviando_gravacoes",
   "desligar_wifi",
@@ -235,7 +233,8 @@ void loop() {
         estadoAtual = iniciar_gravacao;
       }
       else
-        Serial.println("Dispositivo não está pronto para gravação, estado atual: " + String(estadoAtual));
+        Serial.print("Dispositivo não está pronto para gravação, estado atual: ");
+      Serial.println(nomesEstado[estadoAtual]);
     }
     else if (comando == "gravarfluencia\n") {
       if (estadoAtual == pronto) {
@@ -243,27 +242,31 @@ void loop() {
         estadoAtual = iniciar_gravacao;
       }
       else
-        Serial.println("Dispositivo não está pronto para gravação, estado atual: " + String(estadoAtual));
+        Serial.print("Dispositivo não está pronto para gravação, estado atual: ");
+      Serial.println(nomesEstado[estadoAtual]);
     }
     else if (comando == "terminar\n") {
       if (estadoAtual == gravando)
         estadoAtual = terminar_gravacao;
       else
-        Serial.println("Dispositivo não está pronto para terminar gravação, estado atual: " + String(estadoAtual));
+        Serial.print("Dispositivo não está pronto para terminar gravação, estado atual: ");
+      Serial.println(nomesEstado[estadoAtual]);
     }
     else if (comando == "enviar\n") {
       if (estadoAtual == pronto) {
-        estadoAtual = iniciar_transmissao_gravacoes;
+        estadoAtual = enviar_gravacoes;
       }
       else
-        Serial.println("Dispositivo não está pronto para parar enviar gravações, estado atual: " + String(estadoAtual));
+        Serial.print("Dispositivo não está pronto para parar enviar gravações, estado atual: ");
+      Serial.println(nomesEstado[estadoAtual]);
     }
     else if (comando == "play\n") {
       if (estadoAtual == pronto) {
         estadoAtual = envia_comando_play;
       }
       else
-        Serial.println("Dispositivo não está pronto para parar enviar gravações, estado atual: " + String(estadoAtual));
+        Serial.print("Dispositivo não está pronto para parar enviar gravações, estado atual: ");
+      Serial.println(nomesEstado[estadoAtual]);
     }
     else {
       Serial.println("Comando não reconhecido!");
@@ -312,18 +315,16 @@ void loop() {
         estadoAtual = pronto;
       break;
 
-    case iniciar_transmissao_gravacoes:
-     sendCommand(SM_SEND);
-     estadoAtual = enviar_gravacoes;
-
     case enviar_gravacoes:
       estadoAtual = conectar_wifi;
       break;
 
     case conectar_wifi:
+      Serial.println("Aguardando Wifi");
       WiFi.mode(WIFI_STA);
       WiFi.begin("35_NET_2G", "Ap35Manfrim");
       estadoAtual = aguardando_wifi;
+
       break;
 
     case aguardando_wifi:
@@ -336,15 +337,15 @@ void loop() {
     case conectar_ftp:
       if (!ftp.isConnected()) {
         ftp.OpenConnection();
-        estadoAtual = enviando_gravacoes;
+      } else {
+        estadoAtual = iniciar_transmissao_gravacoes;
       }
       break;
 
-    case comandoSTM_enviar_arquivos:
+    case iniciar_transmissao_gravacoes:
       //ENVIAR COMANDO PARA STM ENVIAR ARQUIVOS PARA ESP32
       if (sendCommand(SM_SEND))
         estadoAtual = enviando_gravacoes;
-      break;
 
     case enviando_gravacoes:
       readSPI();
@@ -355,15 +356,15 @@ void loop() {
       Serial.println("Enviando arquivo: ESP32_XPTO_TESTE.wav");
       Serial.println("inicio da transmissão");
       Serial.println("enviando parte 1/3");
-      ftp.WriteData(wav_part3, sizeof(wav_part1));
+      ftp.WriteData(wav_part1, sizeof(wav_part1));
       Serial.println("enviando parte 2/3");
-      ftp.WriteData(wav_part3, sizeof(wav_part2));
+      ftp.WriteData(wav_part2, sizeof(wav_part2));
       Serial.println("enviando parte 3/3");
       ftp.WriteData(wav_part3, sizeof(wav_part3));
 
       Serial.println("Arquivo enviado!");
 
-      ftp.CloseFile();
+      ftp.CloseFile();      
       ftp.CloseConnection();
 
       {
