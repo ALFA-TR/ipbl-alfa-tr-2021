@@ -3,6 +3,7 @@
 #include <ESP32_FTPClient.h>
 #include <ESP32DMASPISlave.h>
 #include "CRC16.h"
+#include "sample.h"
 
 #define ESP32_INPUT 27
 #define ESP32_OUTPUT 28
@@ -130,9 +131,10 @@ void mountCommand(byte command, uint8_t (& commandBuffer)[9]) {
 //MÉTODO PARA ENVIAR UM COMANDO PARA STM
 bool sendCommand(byte command) {
   //verificar se pode enviar para stm antes de enviar
-  if (ESP32_INPUT == LOW)
+  //if (ESP32_INPUT == LOW)
+  if (true)
   {
-    uint8_t commandBuffer[9] = {0,0,0,0,0,0,0,0,0};
+    uint8_t commandBuffer[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     mountCommand(command, commandBuffer);
     Serial.println("Enviando comando para stm: ");
     Serial.println(nomesMaquinaEstadoGERAL[command]);
@@ -227,7 +229,7 @@ void loop() {
     Serial.print("Comando reebido: ");
     Serial.println(comando);
 
-    if (comando == "gravarid") {
+    if (comando == "gravarid\n") {
       if (estadoAtual == pronto) {
         FLUENCY = false;
         estadoAtual = iniciar_gravacao;
@@ -235,7 +237,7 @@ void loop() {
       else
         Serial.println("Dispositivo não está pronto para gravação, estado atual: " + String(estadoAtual));
     }
-    if (comando == "gravarfluencia") {
+    else if (comando == "gravarfluencia\n") {
       if (estadoAtual == pronto) {
         FLUENCY = true;
         estadoAtual = iniciar_gravacao;
@@ -243,21 +245,23 @@ void loop() {
       else
         Serial.println("Dispositivo não está pronto para gravação, estado atual: " + String(estadoAtual));
     }
-    else if (comando == "terminar") {
-      if (estadoAtual = gravando)
+    else if (comando == "terminar\n") {
+      if (estadoAtual == gravando)
         estadoAtual = terminar_gravacao;
       else
         Serial.println("Dispositivo não está pronto para terminar gravação, estado atual: " + String(estadoAtual));
     }
-    else if (comando == "enviar") {
-      if (estadoAtual = pronto)
+    else if (comando == "enviar\n") {
+      if (estadoAtual == pronto) {
         estadoAtual = iniciar_transmissao_gravacoes;
+      }
       else
         Serial.println("Dispositivo não está pronto para parar enviar gravações, estado atual: " + String(estadoAtual));
     }
-    else if (comando == "play") {
-      if (estadoAtual = pronto)
+    else if (comando == "play\n") {
+      if (estadoAtual == pronto) {
         estadoAtual = envia_comando_play;
+      }
       else
         Serial.println("Dispositivo não está pronto para parar enviar gravações, estado atual: " + String(estadoAtual));
     }
@@ -303,10 +307,14 @@ void loop() {
       break;
 
     case terminar_gravacao:
-      //TODO: ENVIAR PARA NUCLEO PARAR GRAVACAO
+      //ENVIAR PARA NUCLEO PARAR GRAVACAO
       if (sendCommand(SM_READY))
         estadoAtual = pronto;
       break;
+
+    case iniciar_transmissao_gravacoes:
+     sendCommand(SM_SEND);
+     estadoAtual = enviar_gravacoes;
 
     case enviar_gravacoes:
       estadoAtual = conectar_wifi;
@@ -342,12 +350,16 @@ void loop() {
       readSPI();
       //TODO: LER BUFFER DO SPI E ENVIAR PARA FTP
       ftp.InitFile("Type A");
-      ftp.NewFile("ARQUIVO_AUDIO.wav");
+      ftp.NewFile("ESP32_XPTO_TESTE.wav");
 
-      Serial.println("Enviando arquivo: ARQUIVO_AUDIO.wav");
+      Serial.println("Enviando arquivo: ESP32_XPTO_TESTE.wav");
       Serial.println("inicio da transmissão");
-
-      ftp.WriteData(spi_slave_rx_buf, 1024);
+      Serial.println("enviando parte 1/3");
+      ftp.WriteData(wav_part3, sizeof(wav_part1));
+      Serial.println("enviando parte 2/3");
+      ftp.WriteData(wav_part3, sizeof(wav_part2));
+      Serial.println("enviando parte 3/3");
+      ftp.WriteData(wav_part3, sizeof(wav_part3));
 
       Serial.println("Arquivo enviado!");
 
@@ -367,12 +379,18 @@ void loop() {
       }
       break;
 
+    case envia_comando_play:
+      sendCommand(SM_PLAY);
+      estadoAtual = pronto;
+      break;
+
     case falha:
       // comando(falha)
       break;
 
     default:
       Serial.println("ESTADO DESCONHECIDO!");
+      estadoAtual = pronto;      
       break;
   }
   //=======================================================
